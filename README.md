@@ -4,7 +4,7 @@
 
 Parses a configuration file with keywords followed by arguments,
 separated by a space. An example of a file in this format is the
-sshd_config file.
+`sshd_config` file.
 
 The parser in this library strips out comments, and normalizes
 whitespace. It includes a binary, `keyword-args`, which reads from
@@ -16,7 +16,7 @@ followed by the values.
 Send input to STDIN, and the output will be a CSV with comments stripped and with unnecessary whitespace removed.
 
 ```bash
-$ printf "#Testing\nkeyword a bunch of values #comment" | ./dist/build/keyword-args/keyword-args
+$ printf "#Testing\nkeyword a bunch of values #comment" | keyword-args
 keyword,"a bunch of values"
 ```
 
