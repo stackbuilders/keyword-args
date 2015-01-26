@@ -16,7 +16,7 @@ followed by the values.
 Send input to STDIN, and the output will be a CSV with comments stripped and with unnecessary whitespace removed.
 
 ```bash
-$ printf "#Testing\nkeyword a bunch of values #comment" | ./dist/build/keyword-args/keyword-args
+$ printf "#Testing\nkeyword a bunch of values #comment" | keyword-args
 keyword,"a bunch of values"
 ```
 
