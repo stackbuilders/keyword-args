@@ -11,10 +11,23 @@ whitespace. It includes a binary, `keyword-args`, which reads from
 STDIN and emits a CSV file with two columns, containing the keyword
 followed by the values.
 
-# Author
+## Usage
+
+Send input to STDIN, and the output will be a CSV with comments stripped and with unnecessary whitespace removed.
+
+```bash
+$ printf "#Testing\nkeyword a bunch of values #comment" | ./dist/build/keyword-args/keyword-args
+keyword,"a bunch of values"
+```
+
+## Author
 
 Justin Leitgeb
 
-# Copyright
+## License
+
+MIT
+
+## Copyright
 
 (C) 2015 Stack Builders Inc.
