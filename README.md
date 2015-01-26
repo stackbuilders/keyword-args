@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/stackbuilders/keyword-args.svg)](https://travis-ci.org/stackbuilders/keyword-args)
+
 # Keyword Args
 
 Parses a configuration file with keywords followed by arguments,
