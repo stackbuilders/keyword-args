@@ -4,7 +4,7 @@
 
 Parses a configuration file with keywords followed by arguments,
 separated by a space. An example of a file in this format is the
-sshd_config file.
+`sshd_config` file.
 
 The parser in this library strips out comments, and normalizes
 whitespace. It includes a binary, `keyword-args`, which reads from
