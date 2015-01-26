@@ -13,6 +13,9 @@ import Text.Parsec.Combinator (eof)
 
 import Control.Applicative ((<*), (*>), (<$>))
 
+-- | Returns a parser for input of a keyword, followed by a space,
+-- followed by one or more arguments. Any comments (text preceeded
+-- by a '#') will be ignored until the end of the line.
 configParser :: Parser [(String, String)]
 configParser = catMaybes <$> many line
 
@@ -36,7 +39,6 @@ configurationOption = do
 
 comment :: Parser ()
 comment =
-  -- ^ use `try` to avoid consuming leading spaces if no match
   try (many space *> char '#')
   *> manyTill anyChar endOfLineOrInput
   *> return ()
