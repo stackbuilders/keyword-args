@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# ANN module "HLint: ignore Use string literal" #-}
 
 module Main where
 
@@ -50,7 +51,7 @@ headerMessage :: String -> String
 headerMessage progName = "Usage: " ++ progName ++ " [OPTION...]"
 
 lintOpts :: [String] -> IO (Options, [String])
-lintOpts argv = do
+DesclintOpts argv = do
   name <- getProgName
 
   case getOpt Permute options argv of
@@ -67,8 +68,7 @@ runCheck = do
   f <- getContents
 
   case parseConfig f of
-    Left e -> do
-      ioError $ userError $ "Parse error: " ++ show e
+    Left e -> ioError $ userError $ "Parse error: " ++ show e
 
     Right config -> putStr $ unpack $ encode config
 
