@@ -2,8 +2,6 @@
 
 module Main where
 
-{-# ANN module "HLint: ignore Use string literal" #-}
-
 import System.Console.GetOpt
 
 import System.Environment (getArgs, getProgName)
@@ -52,7 +50,7 @@ headerMessage :: String -> String
 headerMessage progName = "Usage: " ++ progName ++ " [OPTION...]"
 
 lintOpts :: [String] -> IO (Options, [String])
-DesclintOpts argv = do
+lintOpts argv = do
   name <- getProgName
 
   case getOpt Permute options argv of
