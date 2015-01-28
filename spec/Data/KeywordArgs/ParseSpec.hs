@@ -70,6 +70,9 @@ spec =
       let f = unlines [ "# Some useful comment", "PermitEmptyPasswords" ]
       isLeft (parseConfig f) `shouldBe` True
 
+    it "should parse a value until a hashmark" $
+      parseConfig "Key something#else" `shouldBe` Right [("Key", "something")]
+
     it "should not accept a value containing a Hash character" $
       isLeft (parseConfig "Key #something") `shouldBe` True
 
