@@ -10,13 +10,15 @@ import Data.KeywordArgs.Parse
 import Text.ParserCombinators.Parsec.Error(ParseError, Message(..),
                                            errorMessages, messageEq)
 
-import Data.Either (isLeft)
-
 instance Eq ParseError where
   a == b = errorMessages a == errorMessages b
 
 parseConfig :: String -> Either ParseError [(String, String)]
 parseConfig = parse configParser "(unknown)"
+
+isLeft :: Either a b -> Bool
+isLeft ( Left _ ) = True
+isLeft _          = False
 
 spec :: Spec
 spec =
