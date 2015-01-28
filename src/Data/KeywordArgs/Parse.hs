@@ -6,8 +6,11 @@ import Data.Char (isSpace)
 import Text.Parsec ((<|>), many, try, manyTill, char, anyChar, many1, satisfy)
 import Text.Parsec.String (Parser)
 
+import Text.ParserCombinators.Parsec.Prim hiding (try)
 import Text.ParserCombinators.Parsec.Char (string, space, tab, newline,
                                            alphaNum)
+
+import Control.Monad (liftM2)
 
 import Text.Parsec.Combinator (eof)
 
@@ -20,6 +23,9 @@ configParser :: Parser [(String, String)]
 configParser = catMaybes <$> many line
 
 
+manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
+manyTill1 p end = liftM2 (:) p (manyTill p end)
+
 configurationOption :: Parser (String, String)
 configurationOption = do
   many space
@@ -31,7 +37,7 @@ configurationOption = do
   let
     endOfOption   = comment <|> endOfLineOrInput
     quotedValue   = char '"' *> manyTill anyChar (try (char '"')) <* endOfOption
-    unquotedValue = manyTill anyChar endOfOption
+    unquotedValue = manyTill1 anyChar endOfOption
 
   value <- quotedValue <|> unquotedValue
 

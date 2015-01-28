@@ -7,9 +7,10 @@ import Text.Parsec.String
 
 import Data.KeywordArgs.Parse
 
-import Text.ParserCombinators.Parsec.Error(ParseError, Message,
+import Text.ParserCombinators.Parsec.Error(ParseError, Message(..),
                                            errorMessages, messageEq)
 
+import Data.Either (isLeft)
 
 instance Eq ParseError where
   a == b = errorMessages a == errorMessages b
@@ -53,3 +54,12 @@ spec =
 
       parseConfig f `shouldBe` Right [ ("PermitEmptyPasswords", "no")
                                      , ("Test_Protocol", "1") ]
+
+    it "should not parse when there is no argument" $
+      isLeft (parseConfig "Key") `shouldBe` True
+
+    it "should not parse when there is no arg after a space" $
+      isLeft (parseConfig "Key ") `shouldBe` True
+
+    it "should allow an empty argument in quotes (maybe? what do you think?)" $
+      parseConfig "Key \"\"" `shouldBe` Right [ ("Key", "") ]
