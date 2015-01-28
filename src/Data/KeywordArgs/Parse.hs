@@ -26,18 +26,30 @@ configParser = catMaybes <$> many line
 manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
 manyTill1 p end = liftM2 (:) p (manyTill p end)
 
+isValidKeyChar :: Char -> Bool
+isValidKeyChar c =  c /= '#' && (not . isSpace) c
+
+
+isValidValueChar :: Char -> Bool
+isValidValueChar c =  c /= '#'
+
+
 configurationOption :: Parser (String, String)
 configurationOption = do
   many space
 
-  option <- many1 (satisfy (not . isSpace))
+  option <- many1 (satisfy isValidKeyChar)
 
   many1 space
 
   let
     endOfOption   = comment <|> endOfLineOrInput
-    quotedValue   = char '"' *> manyTill anyChar (try (char '"')) <* endOfOption
-    unquotedValue = manyTill1 anyChar endOfOption
+
+    quotedValue   = char '"' *>
+                    manyTill1 (satisfy isValidValueChar)(try (char '"')) <*
+                    endOfOption
+
+    unquotedValue = manyTill1 (satisfy isValidValueChar) endOfOption
 
   value <- quotedValue <|> unquotedValue
 

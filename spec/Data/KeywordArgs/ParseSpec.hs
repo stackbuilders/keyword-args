@@ -63,5 +63,15 @@ spec =
     it "should not parse when there is no arg after a space" $
       isLeft (parseConfig "Key ") `shouldBe` True
 
-    it "should allow an empty argument in quotes (maybe? what do you think?)" $
-      parseConfig "Key \"\"" `shouldBe` Right [ ("Key", "") ]
+    it "should not allow an empty argument in quotes" $
+      isLeft (parseConfig "Key \"\"") `shouldBe` True
+
+    it "should not parse when an invalid line is embedded in a file" $ do
+      let f = unlines [ "# Some useful comment", "PermitEmptyPasswords" ]
+      isLeft (parseConfig f) `shouldBe` True
+
+    it "should not accept a value containing a Hash character" $
+      isLeft (parseConfig "Key #something") `shouldBe` True
+
+    it "should not accept a value containing a Hash character in quotes" $
+      isLeft (parseConfig "Key \"some#thing\"") `shouldBe` True
