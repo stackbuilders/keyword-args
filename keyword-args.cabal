@@ -1,5 +1,5 @@
 name:                keyword-args
-version:             0.1.0.2
+version:             0.1.0.3
 synopsis:            Extract data from a keyword-args config file format
 
 description: Extracts data from a configuration file with keywords
