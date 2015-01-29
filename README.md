@@ -13,7 +13,8 @@ followed by the values.
 
 ## Executable Usage
 
-Send input to STDIN, and the output will be a CSV with comments stripped and with unnecessary whitespace removed.
+Send input to STDIN, and the output will be a CSV with comments
+stripped and with unnecessary whitespace removed.
 
 ```bash
 $ printf "#Testing\nkeyword a bunch of values #comment" | keyword-args
@@ -22,7 +23,8 @@ keyword,"a bunch of values"
 
 ## Library Usage
 
-This project exposes a library that is usable from Haskell programs for extracting data from input in Keyword-Argument format.
+This project exposes a library that is usable from Haskell programs
+for extracting data from input in Keyword-Argument format.
 
 ## Author
 
