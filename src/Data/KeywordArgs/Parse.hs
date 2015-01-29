@@ -38,22 +38,20 @@ configurationOption :: Parser (String, String)
 configurationOption = do
   many space
 
-  option <- many1 (satisfy isValidKeyChar)
-
-  many1 space
+  keyword <- manyTill1 (satisfy isValidKeyChar) (many1 (char ' '))
 
   let
-    endOfOption   = comment <|> endOfLineOrInput
+    endOfOption   = endOfLineOrInput <|> comment
 
     quotedValue   = char '"' *>
-                    manyTill1 (satisfy isValidValueChar)(try (char '"')) <*
+                    manyTill1 (satisfy isValidValueChar) (try (char '"')) <*
                     endOfOption
 
     unquotedValue = manyTill1 (satisfy isValidValueChar) endOfOption
 
   value <- quotedValue <|> unquotedValue
 
-  return (option, value)
+  return (keyword, value)
 
 comment :: Parser ()
 comment =

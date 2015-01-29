@@ -7,6 +7,9 @@ import Text.Parsec.String
 
 import Data.KeywordArgs.Parse
 
+import Text.Parsec.Pos (newPos)
+import Text.Parsec.Error
+
 import Text.ParserCombinators.Parsec.Error(ParseError, Message(..),
                                            errorMessages, messageEq)
 
@@ -19,6 +22,10 @@ parseConfig = parse configParser "(unknown)"
 isLeft :: Either a b -> Bool
 isLeft ( Left _ ) = True
 isLeft _          = False
+
+fromLeft :: Either ParseError b -> ParseError
+fromLeft (Left p) = p
+fromLeft (Right _) = undefined
 
 spec :: Spec
 spec =
@@ -60,6 +67,11 @@ spec =
     it "should not parse when there is no argument" $
       isLeft (parseConfig "Key") `shouldBe` True
 
+    it "should not parse when there is a missing argument followed by a valid line" $ do
+      let f = unlines [ "PermitEmptyPasswords", "Test_Protocol 1" ]
+
+      isLeft (parseConfig "Key") `shouldBe` True
+
     it "should not parse when there is no arg after a space" $
       isLeft (parseConfig "Key ") `shouldBe` True
 
@@ -78,3 +90,10 @@ spec =
 
     it "should not accept a value containing a Hash character in quotes" $
       isLeft (parseConfig "Key \"some#thing\"") `shouldBe` True
+
+    it "should return accurate source position for invalid quoted strings" $ do
+      let f = unlines [ "PermitEmptyPasswords \"foo#\"", "Test_Protocol 1" ]
+          pos = newPos "(unknown)" 1 26
+          res = errorPos $ fromLeft $ parseConfig f
+
+      res `shouldBe` pos
