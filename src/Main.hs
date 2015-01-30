@@ -71,7 +71,7 @@ runCheck = do
 
     Right config -> putStr $ unpack $ encode config
 
-
+{-# ANN module "HLint: ignore Use string literal" #-}
 main :: IO ()
 main = do
   opts <- getArgs >>= lintOpts
