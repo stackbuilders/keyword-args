@@ -8,7 +8,7 @@ import Text.Parsec.String (Parser)
 
 import Text.ParserCombinators.Parsec.Prim hiding (try)
 import Text.ParserCombinators.Parsec.Char (string, space, tab, newline,
-                                           alphaNum)
+                                           alphaNum, oneOf)
 
 import Control.Monad (liftM2)
 
@@ -26,25 +26,26 @@ configParser = catMaybes <$> many line
 manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
 manyTill1 p end = liftM2 (:) p (manyTill p end)
 
-isValidKeyChar :: Char -> Bool
-isValidKeyChar c =  c /= '#' && (not . isSpace) c
-
-
 isValidValueChar :: Char -> Bool
 isValidValueChar c =  c /= '#'
 
+keywordArgSeparator :: Parser ()
+keywordArgSeparator = many1 (oneOf "\t ") *> return ()
+
+quote :: Parser Char
+quote = char '"'
 
 configurationOption :: Parser (String, String)
 configurationOption = do
   many space
 
-  keyword <- manyTill1 (satisfy isValidKeyChar) (many1 (char ' '))
+  keyword <- manyTill1 anyChar keywordArgSeparator
 
   let
     endOfOption   = endOfLineOrInput <|> comment
 
-    quotedValue   = char '"' *>
-                    manyTill1 (satisfy isValidValueChar) (try (char '"')) <*
+    quotedValue   = quote *>
+                    manyTill1 (satisfy isValidValueChar) (try quote) <*
                     endOfOption
 
     unquotedValue = manyTill1 (satisfy isValidValueChar) endOfOption

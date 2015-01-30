@@ -48,6 +48,9 @@ spec =
     it "allows non-alphanumeric characters in keys" $
       parseConfig "Key-One Value" `shouldBe` Right [ ("Key-One", "Value") ]
 
+    it "allows tab separators between keys and values" $
+      parseConfig "Key-One\tValue" `shouldBe` Right [ ("Key-One", "Value") ]
+
     it "allows comments after quoted values, followed by a newline" $
       parseConfig "Key-One \"One value\" # test\n" `shouldBe`
         Right [ ("Key-One", "One value") ]
