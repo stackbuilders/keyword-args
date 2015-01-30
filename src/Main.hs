@@ -32,10 +32,10 @@ defaultOptions = Options
 
 options :: [OptDescr (Options -> Options)]
 options =
-  [ Option ['V'] ["version"] (NoArg (\opts -> opts { optShowVersion = True }))
+  [ Option "V" ["version"] (NoArg (\opts -> opts { optShowVersion = True }))
     "show version number"
 
-  , Option ['h'] ["help"]    (NoArg (\opts -> opts { optShowHelp = True }))
+  , Option "h" ["help"]    (NoArg (\opts -> opts { optShowHelp = True }))
     "show help"
   ]
 
@@ -46,7 +46,12 @@ showHelp = do
   exitSuccess
 
 headerMessage :: String -> String
-headerMessage progName = "Usage: " ++ progName ++ " [OPTION...]"
+headerMessage progName =
+  unlines [
+    progName ++ " " ++
+    "cleans up whitespace and comments in keyword-argument input " ++
+    "and emits CSV output.\n"
+    , "Usage: " ++ progName ++ " [OPTION...]"]
 
 lintOpts :: [String] -> IO (Options, [String])
 lintOpts argv = do
