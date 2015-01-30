@@ -24,10 +24,8 @@ line :: Parser (Maybe (String, String))
 line = comment *> return Nothing <|> Just <$> configurationOption
 
 configurationOption :: Parser (String, String)
-configurationOption = do
-  _ <- many space
-
-  liftM2 (,) (manyTill1 anyChar keywordArgSeparator) value
+configurationOption =
+  many space *> liftM2 (,) (manyTill1 anyChar keywordArgSeparator) value
 
 value :: Parser String
 value =
