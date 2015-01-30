@@ -27,10 +27,7 @@ configurationOption :: Parser (String, String)
 configurationOption = do
   _ <- many space
 
-  keyword <- manyTill1 anyChar keywordArgSeparator
-  val     <- value
-
-  return (keyword, val)
+  liftM2 (,) (manyTill1 anyChar keywordArgSeparator) value
 
 value :: Parser String
 value =
