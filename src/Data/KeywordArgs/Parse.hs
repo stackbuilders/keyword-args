@@ -28,17 +28,15 @@ configurationOption =
   many space *> liftM2 (,) (manyTill1 anyChar keywordArgSeparator) value
 
 value :: Parser String
-value =
-  unquotedValue <|> quotedValue
-
+value = unquotedValue <|> quotedValue
   where
-    endOfOption   = endOfLineOrInput <|> comment
-
     quotedValue   = quote
                     *> manyTill1 argumentChar quote
                     <* endOfOption
 
     unquotedValue = manyTill1 argumentChar endOfOption
+
+    endOfOption   = endOfLineOrInput <|> comment
 
 comment :: Parser ()
 comment =
