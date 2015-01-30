@@ -5,11 +5,9 @@ module Main where
 import System.Console.GetOpt
 
 import System.Environment (getArgs, getProgName)
-import System.Exit (ExitCode(..), exitWith, exitSuccess)
-import System.IO.Error (ioError)
+import System.Exit (exitSuccess)
 
 import Paths_keyword_args (version)
-import Data.Maybe (fromMaybe)
 
 import Data.Version (showVersion)
 
@@ -18,7 +16,6 @@ import Data.ByteString.Lazy.Char8 (unpack)
 import Data.KeywordArgs.Parse
 
 import Text.Parsec
-import Text.ParserCombinators.Parsec.Error (ParseError)
 
 import Data.Csv (encode)
 
@@ -27,6 +24,7 @@ data Options = Options
     , optShowHelp    :: Bool
     } deriving Show
 
+defaultOptions :: Options
 defaultOptions = Options
     { optShowVersion = False
     , optShowHelp    = False
@@ -41,6 +39,7 @@ options =
     "show help"
   ]
 
+showHelp :: IO ()
 showHelp = do
   prg <- getProgName
   putStrLn (usageInfo prg options)
@@ -63,7 +62,6 @@ parseConfig = parse configParser "(unknown)"
 
 runCheck :: IO ()
 runCheck = do
-
   f <- getContents
 
   case parseConfig f of
@@ -71,7 +69,6 @@ runCheck = do
 
     Right config -> putStr $ unpack $ encode config
 
-{-# ANN module "HLint: ignore Use string literal" #-}
 main :: IO ()
 main = do
   opts <- getArgs >>= lintOpts

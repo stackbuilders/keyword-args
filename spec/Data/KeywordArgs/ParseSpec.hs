@@ -1,17 +1,16 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Data.KeywordArgs.ParseSpec (spec) where
 
 import Test.Hspec
 
 import Text.Parsec
-import Text.Parsec.String
 
 import Data.KeywordArgs.Parse
 
 import Text.Parsec.Pos (newPos)
-import Text.Parsec.Error
 
-import Text.ParserCombinators.Parsec.Error(ParseError, Message(..),
-                                           errorMessages, messageEq)
+import Text.ParserCombinators.Parsec.Error(errorMessages)
 
 instance Eq ParseError where
   a == b = errorMessages a == errorMessages b
@@ -70,9 +69,7 @@ spec =
     it "should not parse when there is no argument" $
       isLeft (parseConfig "Key") `shouldBe` True
 
-    it "should not parse when there is a missing argument followed by a valid line" $ do
-      let f = unlines [ "PermitEmptyPasswords", "Test_Protocol 1" ]
-
+    it "should not parse when there is a missing argument followed by a valid line" $
       isLeft (parseConfig "Key") `shouldBe` True
 
     it "should not parse when there is no arg after a space" $

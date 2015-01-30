@@ -1,14 +1,12 @@
 module Data.KeywordArgs.Parse (configParser) where
 
 import Data.Maybe (catMaybes)
-import Data.Char (isSpace)
 
-import Text.Parsec ((<|>), many, try, manyTill, char, anyChar, many1, satisfy)
+import Text.Parsec ((<|>), many, try, manyTill, char, anyChar, many1)
 import Text.Parsec.String (Parser)
 
-import Text.ParserCombinators.Parsec.Prim hiding (try)
-import Text.ParserCombinators.Parsec.Char (string, space, tab, newline,
-                                           alphaNum, oneOf)
+import Text.ParserCombinators.Parsec.Prim (GenParser)
+import Text.ParserCombinators.Parsec.Char (space, newline, oneOf, noneOf)
 
 import Control.Monad (liftM2)
 
@@ -27,7 +25,7 @@ line = comment *> return Nothing <|> Just <$> configurationOption
 
 configurationOption :: Parser (String, String)
 configurationOption = do
-  many space
+  _ <- many space
 
   keyword <- manyTill1 anyChar keywordArgSeparator
   val     <- value
@@ -42,10 +40,10 @@ value =
     endOfOption   = endOfLineOrInput <|> comment
 
     quotedValue   = quote
-                    *> manyTill1 (satisfy isValidValueChar) quote
+                    *> manyTill1 argumentChar quote
                     <* endOfOption
 
-    unquotedValue = manyTill1 (satisfy isValidValueChar) endOfOption
+    unquotedValue = manyTill1 argumentChar endOfOption
 
 comment :: Parser ()
 comment =
@@ -59,8 +57,8 @@ endOfLineOrInput = newline *> return () <|> eof
 manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
 manyTill1 p end = liftM2 (:) p (manyTill p end)
 
-isValidValueChar :: Char -> Bool
-isValidValueChar c =  c /= '#' && c /= '"'
+argumentChar :: Parser Char
+argumentChar =  noneOf "#\""
 
 keywordArgSeparator :: Parser ()
 keywordArgSeparator = many1 (oneOf "\t ") *> return ()
