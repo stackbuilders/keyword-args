@@ -22,37 +22,30 @@ import Control.Applicative ((<*), (*>), (<$>))
 configParser :: Parser [(String, String)]
 configParser = catMaybes <$> many line
 
-
-manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
-manyTill1 p end = liftM2 (:) p (manyTill p end)
-
-isValidValueChar :: Char -> Bool
-isValidValueChar c =  c /= '#'
-
-keywordArgSeparator :: Parser ()
-keywordArgSeparator = many1 (oneOf "\t ") *> return ()
-
-quote :: Parser Char
-quote = char '"'
+line :: Parser (Maybe (String, String))
+line = comment *> return Nothing <|> Just <$> configurationOption
 
 configurationOption :: Parser (String, String)
 configurationOption = do
   many space
 
   keyword <- manyTill1 anyChar keywordArgSeparator
+  val     <- value
 
-  let
+  return (keyword, val)
+
+value :: Parser String
+value =
+  unquotedValue <|> quotedValue
+
+  where
     endOfOption   = endOfLineOrInput <|> comment
 
-    quotedValue   = quote *>
-                    manyTill1 (satisfy isValidValueChar) (try quote) <*
-                    endOfOption
+    quotedValue   = quote
+                    *> manyTill1 (satisfy isValidValueChar) quote
+                    <* endOfOption
 
     unquotedValue = manyTill1 (satisfy isValidValueChar) endOfOption
-
-  value <- quotedValue <|> unquotedValue
-
-  return (keyword, value)
 
 comment :: Parser ()
 comment =
@@ -63,5 +56,14 @@ comment =
 endOfLineOrInput :: Parser ()
 endOfLineOrInput = newline *> return () <|> eof
 
-line :: Parser (Maybe (String, String))
-line = comment *> return Nothing <|> Just <$> configurationOption
+manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
+manyTill1 p end = liftM2 (:) p (manyTill p end)
+
+isValidValueChar :: Char -> Bool
+isValidValueChar c =  c /= '#' && c /= '"'
+
+keywordArgSeparator :: Parser ()
+keywordArgSeparator = many1 (oneOf "\t ") *> return ()
+
+quote :: Parser Char
+quote = char '"'
