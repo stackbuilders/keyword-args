@@ -111,6 +111,14 @@ spec =
       parseConfig "Key val\n\nKey2 val2" `shouldBe`
         Right [("Key", ["val"]), ("Key2", ["val2"])]
 
+    it "ignores lines starting in comment characters after a blank line" $
+      parseConfig "\n# Don't read the user's ~/.rhosts and ~/.shosts files" `shouldBe`
+        Right [ ]
+
+    it "ignores lines with only whitespace" $
+      parseConfig "  \t \n# Don't read ~/.shosts files" `shouldBe`
+        Right [ ]
+
 
 instance Eq ParseError where
   a == b = errorMessages a == errorMessages b

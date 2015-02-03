@@ -62,8 +62,11 @@ lintOpts argv = do
     (_, _, errs) ->
       ioError (userError (concat errs ++ usageInfo (headerMessage name) options))
 
-parseConfig :: String -> Either ParseError [(String, String)]
+parseConfig :: String -> Either ParseError [(String, [String])]
 parseConfig = parse configParser "(unknown)"
+
+configToList :: [(String, [String])] -> [[String]]
+configToList cfg = map (\line -> fst line : snd line) cfg
 
 runCheck :: IO ()
 runCheck = do
@@ -72,7 +75,8 @@ runCheck = do
   case parseConfig f of
     Left e -> ioError $ userError $ "Parse error: " ++ show e
 
-    Right config -> putStr $ unpack $ encode config
+    Right config ->
+      putStr $ unpack $ encode $ configToList config
 
 main :: IO ()
 main = do

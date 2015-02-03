@@ -23,6 +23,8 @@ configParser = catMaybes <$> many lineWithArguments
 lineWithArguments :: Parser (Maybe (String, [String]))
 lineWithArguments =
   comment *> return Nothing
+  <|> newline *> return Nothing
+  <|> many1 (oneOf "\t ") *> return Nothing
   <|> Just <$> configurationOptionWithArguments
 
 configurationOptionWithArguments :: Parser (String, [String])
