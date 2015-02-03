@@ -1,4 +1,4 @@
-module Data.KeywordArgs.Parse (configParser, argumentParser) where
+module Data.KeywordArgs.Parse (configParser) where
 
 import Data.Maybe (catMaybes)
 
@@ -17,12 +17,6 @@ import Text.Parsec.Combinator (eof)
 
 import Control.Applicative ((<*), (*>), (<$>))
 
--- | Returns a parser for input of a keyword, followed by a space,
--- followed by one or more arguments. Any comments (text preceeded
--- by a '#') will be ignored until the end of the line.
--- configParser :: Parser [(String, String)]
--- configParser = catMaybes <$> many line
-
 configParser :: Parser [(String, [String])]
 configParser = catMaybes <$> many lineWithArguments
 
@@ -35,7 +29,7 @@ configurationOptionWithArguments :: Parser (String, [String])
 configurationOptionWithArguments = do
   _ <- many space
 
-  keyword   <- (manyTill1 anyChar keywordArgSeparator)
+  keyword   <- manyTill1 (noneOf "\n") keywordArgSeparator
 
   arguments <- argumentParser
 
@@ -53,7 +47,8 @@ quotedArgument =
 unquotedArgument :: Parser String
 unquotedArgument =
   many (oneOf " \t") *> many1 (noneOf "\" \t\n#") <*
-  (try comment <|> try (oneOf " \t") *> return () <|> lookAhead (try endOfLineOrInput))
+  (try comment <|> try (oneOf " \t") *> return () <|>
+   lookAhead (try endOfLineOrInput))
 
 comment :: Parser ()
 comment =

@@ -2,49 +2,17 @@
 
 module Data.KeywordArgs.ParseSpec (spec) where
 
-import Test.Hspec
+import Data.KeywordArgs.Parse (configParser)
 
-import Text.Parsec
+import Test.Hspec (it, describe, shouldBe, Spec)
 
-import Data.KeywordArgs.Parse
-
+import Text.Parsec (ParseError, parse, errorPos)
 import Text.Parsec.Pos (newPos)
-
 import Text.ParserCombinators.Parsec.Error(errorMessages)
 
-instance Eq ParseError where
-  a == b = errorMessages a == errorMessages b
-
-parseConfig :: String -> Either ParseError [(String, [String])]
-parseConfig = parse configParser "(unknown)"
-
-isLeft :: Either a b -> Bool
-isLeft ( Left _ ) = True
-isLeft _          = False
-
-fromLeft :: Either ParseError b -> ParseError
-fromLeft (Left p) = p
-fromLeft (Right _) = undefined
 
 spec :: Spec
-spec = do
-  describe "argumentParser" $ do
-    it "parses multiple unquoted arguments followed by a comment" $ do
-      parse  argumentParser "(null)" "one two three # comment" `shouldBe`
-        Right [ "one", "two", "three" ]
-
-    it "parses quoted and unquoted args followed by a comment" $ do
-      parse  argumentParser "(null)" "one \"two\" three # comment" `shouldBe`
-        Right [ "one", "two", "three" ]
-
-    it "parses an arg list ending in an unquoted arg with no comment" $ do
-      parse  argumentParser "(null)" "one \"two\" three" `shouldBe`
-        Right [ "one", "two", "three" ]
-
-    it "parses an arg list ending in a quoted arg with no comment" $ do
-      parse  argumentParser "(null)" "one two \"three\"" `shouldBe`
-        Right [ "one", "two", "three" ]
-
+spec =
   describe "parse" $ do
     it "parses a config line with multiple arguments" $
       parseConfig "Keyword With My Arguments" `shouldBe`
@@ -69,6 +37,22 @@ spec = do
       parseConfig "Key-One \"One value\" # test" `shouldBe`
         Right [ ("Key-One", ["One value"]) ]
 
+    it "parses multiple unquoted arguments followed by a comment" $
+      parseConfig "one two three # comment" `shouldBe`
+        Right [("one", ["two", "three"])]
+
+    it "parses quoted and unquoted args followed by a comment" $
+      parseConfig "one \"two\" three # comment" `shouldBe`
+        Right [("one", ["two", "three"])]
+
+    it "parses an arg list ending in an unquoted arg with no comment" $
+      parseConfig "one \"two\" three" `shouldBe`
+        Right [("one", ["two", "three" ])]
+
+    it "parses an arg list ending in a quoted arg with no comment" $
+      parseConfig "one two \"three\"" `shouldBe`
+        Right [("one", ["two", "three"])]
+
     it "allows non-alphanumeric characters in keys" $
       parseConfig "Key-One Value" `shouldBe` Right [ ("Key-One", ["Value"]) ]
 
@@ -91,38 +75,53 @@ spec = do
       parseConfig f `shouldBe` Right [ ("PermitEmptyPasswords", ["no"])
                                      , ("Test_Protocol", ["1"]) ]
 
-    it "should not parse when there is no argument" $
+    it "doesn't allow keywords with no arguments" $
       isLeft (parseConfig "Key") `shouldBe` True
 
-    it "should not parse when there is a missing argument followed by a valid line" $
-      isLeft (parseConfig "Key") `shouldBe` True
-
-    it "should not parse when there is no arg after a space" $
+    it "doesn't allow keywords followed by a space and no args" $
       isLeft (parseConfig "Key ") `shouldBe` True
 
-    it "should not allow an empty argument in quotes" $
+    it "doesn't allow a line with a missing argument, followed by a valid line" $
+      isLeft (parseConfig $ unlines ["Key", "Key2 value"]) `shouldBe` True
+
+    it "doesn't allow an empty argument in quotes" $
       isLeft (parseConfig "Key \"\"") `shouldBe` True
 
-    it "should not parse when an invalid line is embedded in a file" $ do
+    it "doesn't parse when an invalid line is embedded in a file" $ do
       let f = unlines [ "# Some useful comment", "PermitEmptyPasswords" ]
       isLeft (parseConfig f) `shouldBe` True
 
-    it "should parse a value until a hashmark" $
+    it "parses a value until a hashmark" $
       parseConfig "Key something#else" `shouldBe` Right [("Key", ["something"])]
 
-    it "should not accept a value containing a Hash character" $
+    it "doesn't accept a value containing a Hash character" $
       isLeft (parseConfig "Key #something") `shouldBe` True
 
-    it "should not accept a value containing a Hash character in quotes" $
+    it "doesn't accept a value containing a Hash character in quotes" $
       isLeft (parseConfig "Key \"some#thing\"") `shouldBe` True
 
-    it "should return accurate source position for invalid quoted strings" $ do
+    it "returns accurate source position for invalid quoted strings" $ do
       let f   = unlines [ "PermitEmptyPasswords \"foo#\"", "Test_Protocol 1" ]
           pos = newPos "(unknown)" 1 26
           res = errorPos $ fromLeft $ parseConfig f
 
       res `shouldBe` pos
 
-    it "should accept blank lines" $ do
-      (parseConfig "Key val\n\nKey2 val2") `shouldBe`
+    it "allows blank lines" $
+      parseConfig "Key val\n\nKey2 val2" `shouldBe`
         Right [("Key", ["val"]), ("Key2", ["val2"])]
+
+
+instance Eq ParseError where
+  a == b = errorMessages a == errorMessages b
+
+parseConfig :: String -> Either ParseError [(String, [String])]
+parseConfig = parse configParser "(unknown)"
+
+isLeft :: Either a b -> Bool
+isLeft ( Left _ ) = True
+isLeft _          = False
+
+fromLeft :: Either ParseError b -> ParseError
+fromLeft (Left p) = p
+fromLeft (Right _) = undefined
