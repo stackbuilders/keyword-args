@@ -1,11 +1,14 @@
-module Data.KeywordArgs.Parse (configParser) where
+module Data.KeywordArgs.Parse (configParser, argumentParser) where
 
 import Data.Maybe (catMaybes)
 
-import Text.Parsec ((<|>), many, try, manyTill, char, anyChar, many1)
+import Text.Parsec
+  ((<|>), many, try, lookAhead, manyTill, char, anyChar, many1)
+
 import Text.Parsec.String (Parser)
 
 import Text.ParserCombinators.Parsec.Prim (GenParser)
+
 import Text.ParserCombinators.Parsec.Char (space, newline, oneOf, noneOf)
 
 import Control.Monad (liftM2)
@@ -17,30 +20,44 @@ import Control.Applicative ((<*), (*>), (<$>))
 -- | Returns a parser for input of a keyword, followed by a space,
 -- followed by one or more arguments. Any comments (text preceeded
 -- by a '#') will be ignored until the end of the line.
-configParser :: Parser [(String, String)]
-configParser = catMaybes <$> many line
+-- configParser :: Parser [(String, String)]
+-- configParser = catMaybes <$> many line
 
-line :: Parser (Maybe (String, String))
-line = comment *> return Nothing <|> Just <$> configurationOption
+configParser :: Parser [(String, [String])]
+configParser = catMaybes <$> many lineWithArguments
 
-configurationOption :: Parser (String, String)
-configurationOption =
-  many space *> liftM2 (,) (manyTill1 anyChar keywordArgSeparator) value
+lineWithArguments :: Parser (Maybe (String, [String]))
+lineWithArguments =
+  comment *> return Nothing
+  <|> Just <$> configurationOptionWithArguments
 
-value :: Parser String
-value = unquotedValue <|> quotedValue
-  where
-    quotedValue   = quote
-                    *> manyTill1 argumentChar quote
-                    <* endOfOption
+configurationOptionWithArguments :: Parser (String, [String])
+configurationOptionWithArguments = do
+  _ <- many space
 
-    unquotedValue = manyTill1 argumentChar endOfOption
+  keyword   <- (manyTill1 anyChar keywordArgSeparator)
 
-    endOfOption   = endOfLineOrInput <|> comment
+  arguments <- argumentParser
+
+  return (keyword, arguments)
+
+argumentParser :: Parser [String]
+argumentParser =
+  manyTill1 (try quotedArgument <|> try unquotedArgument)
+  (try endOfLineOrInput <|> try comment)
+
+quotedArgument :: Parser String
+quotedArgument =
+  many (oneOf " \t") *> quote *> manyTill1 (noneOf "#") quote
+
+unquotedArgument :: Parser String
+unquotedArgument =
+  many (oneOf " \t") *> many1 (noneOf "\" \t\n#") <*
+  (try comment <|> try (oneOf " \t") *> return () <|> lookAhead (try endOfLineOrInput))
 
 comment :: Parser ()
 comment =
-  try (many space *> char '#')
+  try (many (oneOf " \t") *> char '#')
   *> manyTill anyChar endOfLineOrInput
   *> return ()
 
@@ -49,9 +66,6 @@ endOfLineOrInput = newline *> return () <|> eof
 
 manyTill1 :: GenParser tok st a -> GenParser tok st end -> GenParser tok st [a]
 manyTill1 p end = liftM2 (:) p (manyTill p end)
-
-argumentChar :: Parser Char
-argumentChar =  noneOf "#\""
 
 keywordArgSeparator :: Parser ()
 keywordArgSeparator = many1 (oneOf "\t ") *> return ()
