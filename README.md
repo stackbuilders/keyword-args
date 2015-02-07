@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/stackbuilders/keyword-args.svg)](https://travis-ci.org/stackbuilders/keyword-args)
+[![Build Status](https://travis-ci.org/stackbuilders/keyword-args.svg)](https://travis-ci.org/stackbuilders/keyword-args) [![Hackage](https://img.shields.io/hackage/v/keyword-args.svg)](http://hackage.haskell.org/package/keyword-args)
 
 # Keyword Args
 
