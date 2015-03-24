@@ -55,4 +55,4 @@ test-suite keyword-args-test
 
 source-repository head
   type:     git
-  location: https://github.com/stackbuilders/keyword-args
+  location: git://github.com/stackbuilders/keyword-args.git
