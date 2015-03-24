@@ -66,7 +66,7 @@ parseConfig :: String -> Either ParseError [(String, [String])]
 parseConfig = parse configParser "(unknown)"
 
 configToList :: [(String, [String])] -> [[String]]
-configToList cfg = map (\line -> fst line : snd line) cfg
+configToList = map $ uncurry (:)
 
 runCheck :: IO ()
 runCheck = do
