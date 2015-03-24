@@ -8,8 +8,8 @@ import Test.Hspec (it, describe, shouldBe, Spec)
 
 import Text.Parsec (ParseError, parse, errorPos)
 import Text.Parsec.Pos (newPos)
-import Text.ParserCombinators.Parsec.Error(errorMessages)
 
+import Text.ParseErrorEq ()
 
 spec :: Spec
 spec =
@@ -119,9 +119,6 @@ spec =
       parseConfig "  \t \n# Don't read ~/.shosts files" `shouldBe`
         Right [ ]
 
-
-instance Eq ParseError where
-  a == b = errorMessages a == errorMessages b
 
 parseConfig :: String -> Either ParseError [(String, [String])]
 parseConfig = parse configParser "(unknown)"

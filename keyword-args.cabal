@@ -50,6 +50,7 @@ test-suite keyword-args-test
                        , containers
 
                        , hspec
+                       , parseerror-eq
 
   default-language:    Haskell2010
   ghc-options:         -Wall
