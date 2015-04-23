@@ -1,5 +1,5 @@
 name:                keyword-args
-version:             0.2.0.1
+version:             0.2.0.2
 synopsis:            Extract data from a keyword-args config file format
 homepage:            https://github.com/stackbuilders/keyword-args
 
