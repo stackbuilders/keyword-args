@@ -17,12 +17,11 @@ build-type:          Simple
 cabal-version:       >=1.10
 bug-reports:         https://github.com/stackbuilders/keyword-args/issues
 
-
 executable keyword-args
   main-is:             Main.hs
   other-modules:       Data.KeywordArgs.Parse
 
-  build-depends:         base >=4.5 && <4.8
+  build-depends:         base >=4.5 && <4.9
                        , parsec >= 3.1.0 && <= 3.2
                        , containers
                        , cassava
@@ -34,7 +33,7 @@ executable keyword-args
 
 library
   exposed-modules:    Data.KeywordArgs.Parse
-  build-depends:         base >=4.5 && <4.8
+  build-depends:         base >=4.5 && <4.9
                        , parsec >= 3.1.0 && <= 3.2
                        , containers
 
@@ -46,7 +45,7 @@ test-suite keyword-args-test
   type: exitcode-stdio-1.0
   hs-source-dirs: spec, src
   main-is: Spec.hs
-  build-depends:       base >=4.5 && <4.8
+  build-depends:       base >=4.5 && <4.9
                        , parsec >= 3.1.0 && <= 3.2
                        , containers
 
